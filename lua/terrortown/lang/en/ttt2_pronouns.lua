@@ -19,4 +19,5 @@ L["help_ttt2_pronouns_players"] = "Shows pronouns on alive players."
 L["label_ttt2_pronouns_scoreboard_append"] = "Enable Appending Pronouns In Scoreboard"
 L["help_ttt2_pronouns_scoreboard_append"] = "Appends the pronouns after the name in the scoreboard."
 L["label_ttt2_pronouns_scoreboard_column"] = "Enable Pronouns Column In Scoreboard"
-L["help_ttt2_pronouns_scoreboard_column"] = "Adds a pronouns column to the scoreboard. Must rejoin for the change to take effect."
+L["help_ttt2_pronouns_scoreboard_column"] =
+	"Adds a pronouns column to the scoreboard. Must rejoin for the change to take effect."
