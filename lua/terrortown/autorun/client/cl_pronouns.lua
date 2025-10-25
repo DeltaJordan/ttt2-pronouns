@@ -34,7 +34,6 @@ local function PlayerAppendPronouns(ply, panel)
 	local mgn = 10
 	local iconSizes = 16
 	local tx = x + w + mgn
-	local ty = (SB_ROW_HEIGHT - iconSizes) * 0.5
 	local iconTbl = {"dev", "vip", "addondev", "admin", "streamer", "heroes",}
 	for i = 1, #iconTbl do
 		local entry = iconTbl[i]
