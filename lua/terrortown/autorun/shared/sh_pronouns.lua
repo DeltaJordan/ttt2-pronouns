@@ -2,3 +2,7 @@ CreateConVar("ttt2_pronouns_antighost", 1, {FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_R
 CreateConVar("ttt2_pronouns_voice", 1, {FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_REPLICATED})
 CreateConVar("ttt2_pronouns_bodies", 1, {FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_REPLICATED})
 CreateConVar("ttt2_pronouns_players", 1, {FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_REPLICATED})
+CreateConVar("ttt2_pronouns_scoreboard_append", 1, {FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_REPLICATED})
+CreateConVar("ttt2_pronouns_scoreboard_append_maxchar", 26, {FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_REPLICATED})
+CreateConVar("ttt2_pronouns_scoreboard_column", 0, {FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_REPLICATED})
+CreateConVar("ttt2_pronouns_scoreboard_column_maxchar", 10, {FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_REPLICATED})

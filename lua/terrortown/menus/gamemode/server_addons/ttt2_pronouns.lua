@@ -29,4 +29,6 @@ function CLGAMEMODESUBMENU:Populate(parent)
 	MakeElement(display_options, "voice", "MakeCheckBox")
 	MakeElement(display_options, "bodies", "MakeCheckBox")
 	MakeElement(display_options, "players", "MakeCheckBox")
+	MakeElement(display_options, "scoreboard_append", "MakeCheckBox")
+	MakeElement(display_options, "scoreboard_column", "MakeCheckBox")
 end
