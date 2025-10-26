@@ -139,7 +139,7 @@ net.Receive("TTT2PronounGetAll", function(_, ply)
 		newDataEntry:Save()
 	end
 
-	print("Recieved " .. newDataCount .. " entries of pronoun data from server.")
+	print("Received " .. newDataCount .. " entries of pronoun data from server.")
 end)
 
 hook.Add("PostInitPostEntity", "TTT2PronounInit", function()
