@@ -139,7 +139,7 @@ net.Receive("TTT2PronounGetAll", function(_, ply)
 		newDataEntry:Save()
 	end
 
-	print("Recieved " .. newDataCount .. " entries of pronoun data from server.")
+	print("Received " .. newDataCount .. " entries of pronoun data from server.")
 end)
 
 hook.Add("PostInitPostEntity", "TTT2PronounInit", function()
@@ -180,6 +180,7 @@ end)
 hook.Add("InitPostEntity", "MarkerWorkaroundFix", function()
 	if MARKER_DATA == nil then return end
 	MARKER_DATA.UpdateScoreboard = function(self)
+		if sboard_panel == nil then return end
 		sboard_panel:Remove()
 		sboard_panel = nil
 	end
