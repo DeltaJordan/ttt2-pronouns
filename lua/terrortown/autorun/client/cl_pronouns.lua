@@ -12,21 +12,7 @@ local function GetPronounORM()
 	return orm.Make(sqlTableName)
 end
 
-local function PlayerAppendPronouns(ply, panel)
-	local prons = ""
-	local pronounORM = GetPronounORM()
-	if not pronounORM then return end
-	local userTable = pronounORM:Find(ply:SteamID64())
-	if userTable then prons = userTable.pronouns end
-	if prons == "" then return end
-	-- set character limit and amount to truncate to
-	local appendMaxChar = GetConVar("ttt2_pronouns_scoreboard_append_maxchar"):GetInt()
-	if string.len(prons) > appendMaxChar then prons = string.sub(prons, 1, appendMaxChar - 2) .. "..." end
-	prons = "(" .. prons .. ")"
-	-- trigger PerformLayout which should set everything in the
-	-- right position for this to also be set in the right position.
-	panel:InvalidateLayout(true)
-	panel.nick:SizeToContents()
+local function UpdatePlayerRowPronounsPosition(panel)
 	-- copy pasted from ttt2 code in cl_sb_row.lua
 	local x = panel.nick:GetPos()
 	local w = panel.nick:GetSize()
@@ -40,31 +26,41 @@ local function PlayerAppendPronouns(ply, panel)
 		local iconData = panel[entry]
 		if iconData:IsVisible() then count = count + 1 end
 	end
+	panel.pronoun:SetPos(tx + (iconSizes + mgn) * count, (SB_ROW_HEIGHT - panel.nick:GetTall()) * 0.5)
+	panel.pronoun:SizeToContents()
+end
 
+local function UpdatePlayerRowPronounsText(ply, panel)
+	local prons = ""
+	local pronounORM = GetPronounORM()
+	if not pronounORM then return end
+	local userTable = pronounORM:Find(ply:SteamID64())
+	if userTable then prons = userTable.pronouns end
+	if prons == "" then return end
+	-- set character limit and amount to truncate to
+	local appendMaxChar = GetConVar("ttt2_pronouns_scoreboard_append_maxchar"):GetInt()
+	if string.len(prons) > appendMaxChar then prons = string.sub(prons, 1, appendMaxChar - 2) .. "..." end
+	prons = "(" .. prons .. ")"
 	panel.pronoun:SetText(prons)
 	panel.pronoun:SizeToContents()
-	panel.pronoun:SetPos(tx + (iconSizes + mgn) * count, (SB_ROW_HEIGHT - panel.nick:GetTall()) * 0.5)
-	-- text color could be set as the same one as the name but didnt feel like it I think its fine
-	panel.pronoun:SetTextColor(COLOR_WHITE)
 end
 
 local function UpdateAllPlayersScoreboard()
 	if not GetConVar("ttt2_pronouns_scoreboard_append"):GetBool() then return end
 	local scoreboardPanel = GAMEMODE:GetScoreboardPanel()
 	if not IsValid(scoreboardPanel) then return end
+	if not scoreboardPanel:IsVisible() then return end
 	-- get all the group panels from the scoreboard
 	for _, group in pairs(scoreboardPanel.ply_groups) do
 		if not IsValid(group) then continue end
 		-- iterate over the player row panels in the group and then set each pronoun
 		for _, panel in pairs(group.rows) do
-			local ply = panel:GetPlayer()
-			if not IsValid(ply) then continue end
-			PlayerAppendPronouns(ply, panel)
+			UpdatePlayerRowPronounsPosition(panel)
 		end
 	end
 end
 
-local function UpdatePlayerScoreboard(ply)
+local function GetPlayerRowPanel(ply)
 	if not IsValid(ply) then return end
 	local scoreboardPanel = GAMEMODE:GetScoreboardPanel()
 	if not IsValid(scoreboardPanel) then return end
@@ -72,9 +68,7 @@ local function UpdatePlayerScoreboard(ply)
 	local groupPanel = scoreboardPanel.ply_groups[group]
 	if not IsValid(groupPanel) then return end
 	-- player row panel
-	local panel = groupPanel.rows[ply]
-	if not IsValid(panel) then return end
-	PlayerAppendPronouns(ply, panel)
+	return groupPanel.rows[ply]
 end
 
 hook.Add("TTTRenderEntityInfo", "TTTPronounsTargetID", function(tData)
@@ -123,7 +117,12 @@ net.Receive("TTT2PronounBroadcast", function()
 		print("Deleted pronoun data for " .. steamId .. ".")
 	end
 
-	UpdatePlayerScoreboard(player.GetBySteamID64(steamId))
+	local ply = player.GetBySteamID64(steamId)
+	if not IsValid(ply) then
+		return
+	end
+	local playerRowPanel = GetPlayerRowPanel(ply)
+	UpdatePlayerRowPronounsText(ply, playerRowPanel)
 end)
 
 net.Receive("TTT2PronounGetAll", function(_, ply)
@@ -155,9 +154,15 @@ hook.Add("TTTScoreboardColumns", "PronounsScoreboard", function(panel)
 		panel.pronoun:SetMouseInputEnabled(false)
 		panel.pronoun:SetFont("treb_small")
 		panel.pronoun:SetText("")
+		panel.pronoun:SetTextColor(COLOR_WHITE)
 		-- wait a think to update
 		-- 2 times cause I notice it possibly being bugged after 1 think somehow
-		timer.Create("UpdatePronounsNextThink", 1 / 150, 2, function() UpdateAllPlayersScoreboard() end)
+		timer.Create("UpdatePronounsNextThink"..SysTime(), 1 / 150, 1, function() 
+			UpdatePlayerRowPronounsText(panel.Player, panel)
+			UpdatePlayerRowPronounsPosition(panel)
+			-- absolutely make sure it actually looks good now
+			timer.Create("UpdatePronounsPosition"..SysTime(), 0.05, 2, function() UpdatePlayerRowPronounsPosition(panel) end)
+		end)
 	end
 
 	if GetConVar("ttt2_pronouns_scoreboard_column"):GetBool() then
@@ -175,13 +180,7 @@ hook.Add("TTTScoreboardColumns", "PronounsScoreboard", function(panel)
 	end
 end)
 
--- The marker addon recreates the scoreboard in a way that breaks with my code.
--- Here we replace the function that gives it identical functionality except in a way that shouldnt break things.
-hook.Add("InitPostEntity", "MarkerWorkaroundFix", function()
-	if MARKER_DATA == nil then return end
-	MARKER_DATA.UpdateScoreboard = function(self)
-		if sboard_panel == nil then return end
-		sboard_panel:Remove()
-		sboard_panel = nil
-	end
+-- keep updating the position, like when the username changes possibly
+timer.Create("PronounsScoreboardPositionUpdate", 0.3, 0, function()
+	UpdateAllPlayersScoreboard()
 end)
