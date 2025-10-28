@@ -14,23 +14,22 @@ end
 
 local SBPANELROW = vgui.GetControlTable("TTTScorePlayerRow")
 SBPANELROW.pronoun_UpdatePlayerData = SBPANELROW.pronoun_UpdatePlayerData or SBPANELROW.UpdatePlayerData
-
 function SBPANELROW:UpdatePlayerData()
-	SBPANELROW:pronoun_UpdatePlayerData()
-
+	self:pronoun_UpdatePlayerData()
 	if not GetConVar("ttt2_pronouns_scoreboard_append"):GetBool() then return end
-
+	local ply = self.Player
+	if not IsValid(ply) then return end
 	local prons = ""
 	local pronounORM = GetPronounORM()
 	if not pronounORM then return end
-	local userTable = pronounORM:Find(self.Player:SteamID64())
+	local userTable = pronounORM:Find(ply:SteamID64())
 	if userTable then prons = userTable.pronouns end
 	if prons == "" then return end
 	-- set character limit and amount to truncate to
 	local appendMaxChar = GetConVar("ttt2_pronouns_scoreboard_append_maxchar"):GetInt()
 	if string.len(prons) > appendMaxChar then prons = string.sub(prons, 1, appendMaxChar - 2) .. "..." end
 	prons = "(" .. prons .. ")"
-	self.nick:SetText(self.Player:Nick() .. " " .. prons)
+	self.nick:SetText(ply:Nick() .. " " .. prons)
 	self.nick:SizeToContents()
 end
 
@@ -61,7 +60,8 @@ hook.Add("TTTScoreboardColumns", "PronounsScoreboard", function(panel)
 	end
 end)
 
-hook.Add("TTT2PronounUpdateScoreboard", "PronounsUpdateScoreboard", function()
+hook.Add("TTT2PronounUpdateScoreboard", "PronounsUpdateScoreboard", function(ply)
+	if not IsValid(ply) then return end
 	local playerRowPanel = GetPlayerRowPanel(ply)
 	playerRowPanel:UpdatePlayerData()
 end)

@@ -63,7 +63,7 @@ net.Receive("TTT2PronounBroadcast", function()
 		return
 	end
 
-	hook.Run("TTT2PronounUpdateScoreboard");
+	hook.Run("TTT2PronounUpdateScoreboard", ply);
 end)
 
 net.Receive("TTT2PronounGetAll", function(_, ply)
