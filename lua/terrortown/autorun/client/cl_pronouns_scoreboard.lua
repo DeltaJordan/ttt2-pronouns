@@ -63,7 +63,7 @@ function SBPANELROW:UpdatePlayerData()
 		local appendMaxChar = GetConVar("ttt2_pronouns_scoreboard_append_maxchar"):GetInt()
 		if string.len(prons) > appendMaxChar then prons = string.sub(prons, 1, appendMaxChar - 2) .. "..." end
 		prons = "(" .. prons .. ")"
-		self.nick:SetText(ply:Nick() .. " " .. prons)
+		self.nick:SetText(ply:Nick() .. "  " .. prons)
 	else
 		self.nick:SetText(ply:Nick())
 	end
