@@ -12,26 +12,6 @@ local function GetPronounORM()
 	return orm.Make(sqlTableName)
 end
 
--- Stolen from TTT2/gamemodes/terrortown/gamemode/client/vgui/cl_sb_row.lua @ https://github.com/TTT-2/TTT2
-local function ColorForPlayer(ply)
-	if IsValid(ply) then
-		---
-		-- @realm client
-		local c = hook.Run("TTTScoreboardColorForPlayer", ply)
-
-		-- verify that we got a proper color
-		if c and istable(c) and c.r and c.b and c.g and c.a then
-			return c
-		else
-			ErrorNoHaltWithStack(
-				"TTTScoreboardColorForPlayer hook returned something that isn't a color!\n"
-			)
-		end
-	end
-
-	return namecolor.default
-end
-
 local SBPANELROW = vgui.GetControlTable("TTTScorePlayerRow")
 SBPANELROW.pronoun_UpdatePlayerData = SBPANELROW.pronoun_UpdatePlayerData or SBPANELROW.UpdatePlayerData
 function SBPANELROW:UpdatePlayerData()
@@ -46,6 +26,8 @@ function SBPANELROW:UpdatePlayerData()
 	local protectNick = self.nick
 	self.nick = vgui.Create("DLabel", self)
 	self:pronoun_UpdatePlayerData()
+	local nickText = self.nick:GetText()
+	local nickColor = self.nick:GetTextColor()
 	self.nick:Remove()
 	self.nick = protectNick
 
@@ -63,12 +45,12 @@ function SBPANELROW:UpdatePlayerData()
 		local appendMaxChar = GetConVar("ttt2_pronouns_scoreboard_append_maxchar"):GetInt()
 		if string.len(prons) > appendMaxChar then prons = string.sub(prons, 1, appendMaxChar - 2) .. "..." end
 		prons = "(" .. prons .. ")"
-		self.nick:SetText(ply:Nick() .. "  " .. prons)
+		self.nick:SetText(nickText .. "  " .. prons)
 	else
-		self.nick:SetText(ply:Nick())
+		self.nick:SetText(nickText)
 	end
 	self.nick:SizeToContents()
-	self.nick:SetTextColor(ColorForPlayer(ply))
+	self.nick:SetTextColor(nickColor)
 end
 
 local function GetPlayerRowPanel(ply)
