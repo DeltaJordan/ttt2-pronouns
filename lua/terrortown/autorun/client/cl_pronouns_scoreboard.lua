@@ -83,5 +83,6 @@ end)
 hook.Add("TTT2PronounUpdateScoreboard", "PronounsUpdateScoreboard", function(ply)
 	if not IsValid(ply) then return end
 	local playerRowPanel = GetPlayerRowPanel(ply)
+	if not playerRowPanel then return end
 	playerRowPanel:UpdatePlayerData()
 end)
